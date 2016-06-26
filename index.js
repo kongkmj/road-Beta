@@ -6,37 +6,39 @@ var bodyParser = require('body-parser');
 var mongoose  = require('mongoose');
 var querystring = require('querystring');
 
+
 // TCP
 var net = require('net');
-
+var discon = 0;
 var server = net.createServer(function (socket) {
   console.log(socket.address().address+"connected");
-
   //client로 부터 오는 data 출력
   socket.on('data',function (data) {
     //문자열 추출
     //console.log(data);
     var a= ""+data;
-    console.log(a);
     var datanumber = a.indexOf(",");
-    console.log(datanumber);
+    //console.log(datanumber);
     var c = a.substring(0,datanumber);
     var b = a.substring(datanumber+1);
-    console.log(c);
-    console.log(b);
+    //console.log(c);
+   // console.log(b);
     var data2 = c-0;
     var data3 = b-0;
 
 
       data4= data2;
       data5= data3;
-
+ 	console.log("연결이 끊긴 횟수: "+discon);
+    console.log("Data1: "+data4+", Data2: "+data5);
     //console.log(data3);
-    io.emit('chat message',data4,data5);
+    io.emit('chat message',data4,data5,discon);
   });
 
   //client와 접속이 끊겻을때
   socket.on('close',function () {
+    discon+=1;
+   // console.log("연결이 끊긴 횟수: "+discon);
     console.log('client disconnected');
   });
   //client 가 접속 했을때
@@ -60,7 +62,7 @@ server.listen(11111,function () {
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-mongoose.connect("mongodb://test:test@ds017672.mlab.com:17672/graph");
+mongoose.connect("mongodb://172.31.4.15:27017");
 var db = mongoose.connection;
 db.once("open",function () {
   console.log("DB connected");
@@ -121,6 +123,6 @@ app.post('/realtimechart',function (req,res) {
 });
 */
 
-http.listen(3000,function(){
-    console.log('listening at 3000');
+http.listen(80,function(){
+    console.log('listening at 80');
 });

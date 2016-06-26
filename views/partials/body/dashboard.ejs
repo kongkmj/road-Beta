@@ -116,7 +116,7 @@
                     <script>
 
                     </script>
-                    <a href="#" id="BTN">
+                    <a id="BTN" style="cursor:pointer;">
                         <div class="panel-footer">
                             <span id="test7" class="pull-left">기준치 잡기</span>
                             <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
@@ -224,7 +224,7 @@
                         }],
                         yAxes: [{
                             ticks:{
-                              suggestedMax: 200,
+                              suggestedMax: 30,
                               beginAtZero: true
                             },
                             display: true,
@@ -272,7 +272,7 @@
                         }],
                         yAxes: [{
                             ticks:{
-                              suggestedMax: 200,
+                              suggestedMax: 20,
                               beginAtZero: true
                             },
                             display: true,
@@ -290,7 +290,7 @@
             };
 
             $.each(config1.data.datasets, function(i, dataset) {
-                var background = randomColor(0.5);
+                var background ="#FF4848"; 
                 dataset.borderColor = background;
                 dataset.backgroundColor = background;
                 dataset.pointBorderColor = background;
@@ -298,7 +298,7 @@
                 dataset.pointBorderWidth = 1;
             });
             $.each(config2.data.datasets, function(i, dataset) {
-                var background = randomColor(0.5);
+                var background = "#486AAE";
                 dataset.borderColor = background;
                 dataset.backgroundColor = background;
                 dataset.pointBorderColor = background;
@@ -318,7 +318,7 @@
 
         <script src="/socket.io/socket.io.js"></script>
         <script>
-        var socket = io.connect("http://localhost:3000");
+        var socket = io.connect("http://52.78.24.215:80");
         var check_icon = $("#test3 i");
         var check_color = $("#test5");
         var check_text = $("#test6");
@@ -329,13 +329,21 @@
         var rule1,rule2;
         var eval1=0 ,eval2=0 ;
         var count=0;
+	var audio = new Audio();
+	audio.src = './alert.mp3';
+	var alert_cnt=0;	
 
-        socket.on('chat message',function (data4,data5) {
+        socket.on('chat message',function (data4,data5,discon) {
+	  
+	  console.log("끊긴 횟수: ",discon);
           console.log("chat message: ",data4,data5);
           var accdata1 = data4/100;
           var accdata2 = data5/100;
+          var warnrule = 5;
+	  var notirule = 2;
 
-          console.log('rule: '+rule1);
+	 	console.log('알람: ',+alert_cnt);
+          
           check_click.click(function () {
             eval1=0;
             eval2=0;
@@ -346,7 +354,7 @@
             check_text.removeClass("huge2");
             check_text.addClass("huge1");
             alert_text.text('');
-            check_text.text(" 측정 중 ....");
+            check_text.text(" 시작");
             check_color.removeClass("panel-green")
             check_color.removeClass("panel-yellow")
             check_color.removeClass("panel-red")
@@ -371,13 +379,20 @@
               startbnt=0;
               count=0;
             }
+		if(count==0){
+		check_text.text('측정('+(10-(count/2))+')');
+		}
+		else{
+		check_text.text('측정( '+(10-(count/2))+')');
+		}
           }
 
           if(startbnt!=1){
 
 
-          if((rule1+100)<=accdata1||(rule2+100)<=accdata2){
-            if(accdata1>(rule1+150)&&accdata2<(rule2+150)){
+          if((accdata1>(rule1+notirule)||accdata1<(rule1-notirule))||(accdata2>(rule2+notirule)||accdata2<(rule2-notirule))){
+            if((accdata1>(rule1+warnrule)||accdata1<(rule1-warnrule))&&(accdata2<(rule2+warnrule)&&accdata2>(rule2-warnrule))){
+	      alert_cnt=1;
               check_text.text("위험");
               alert_text.text("기준치 잡기");
               check_color.removeClass("panel-ready");
@@ -391,7 +406,8 @@
               check_icon.addClass("fa fa-frown-o");
               console.log("1번 도로 위험!!");
             }
-            if(accdata1<=(rule1+150)&&accdata2>=(rule2+150)){
+            if((accdata1<(rule1+warnrule)&&accdata1>(rule1-warnrule))&&(accdata2>(rule2+warnrule)||accdata2<(rule2-warnrule))){
+	      alert_cnt=1;
               check_text.text("위험");
               alert_text.text("기준치 잡기");
               space_text.add();
@@ -406,7 +422,8 @@
               check_icon.addClass("fa fa-frown-o");
               console.log("2번 도로 위험!!");
             }
-            if(accdata1>=(rule1+150)&&accdata2>=(rule2+150)){
+            if((accdata1>(rule1+warnrule)||accdata1<(rule1-warnrule))&&(accdata2>(rule2+warnrule)||accdata2<(rule2-warnrule))){
+	      alert_cnt=1;
               check_text.text("위험");
               alert_text.text("기준치 잡기");
               space_text.add();
@@ -421,7 +438,9 @@
               check_icon.addClass("fa fa-frown-o");
               console.log("1번 도로 2번 도로 위험!!");
             }
-            else if(accdata1>=(rule1+100)&&accdata1<=(rule1+150)&&accdata2>=(rule2+100)&&accdata2<=(rule2+150)){
+            else if((((accdata1>(rule1+notirule))&&(accdata1<(rule1+warnrule)))||((accdata1<(rule1-notirule))&&(accdata1>(rule1-warnrule))))&&
+  (((accdata2>(rule2+notirule))&&(accdata2<(rule2+warnrule)))||((accdata2<(rule2-notirule))&&(accdata2>(rule2-warnrule))))){
+	      alert_cnt=0;
               check_text.text("주의");
               alert_text.text("기준치 잡기");
               space_text.add();
@@ -436,7 +455,9 @@
               check_icon.addClass("fa fa-meh-o");
               console.log("1번 도로 2번 도로 주의!");
             }
-            else if(accdata1>=(rule1+100)&&accdata1<=(rule1+150)&&accdata2<=(rule2+100)){
+            else if((((accdata1>(rule1+notirule))&&(accdata1<(rule1+warnrule)))||((accdata1<(rule1-notirule))&&(accdata1>(rule1-warnrule))))&&
+  (accdata2<(rule2+notirule)||accdata2>(rule2-notirule))){
+	      alert_cnt=0;
               check_text.text("주의");
               alert_text.text("기준치 잡기");
               check_color.removeClass("panel-ready");
@@ -450,7 +471,9 @@
               check_icon.addClass("fa fa-meh-o");
               console.log("1번 도로 주의!");
             }
-            else if(accdata1<=(rule1+100)&&accdata2>=(rule2+100)&&accdata2<=(rule2+150)){
+            else if((((accdata2>(rule2+notirule))&&(accdata2<(rule2+warnrule)))||((accdata2<(rule2-notirule))&&(accdata2>(rule2-warnrule))))&&
+  (accdata1<(rule1+notirule)||accdata1>(rule1-notirule))){
+	      alert_cnt=0;
               check_text.text("주의");
               alert_text.text("기준치 잡기");
               check_color.removeClass("panel-ready");
@@ -465,8 +488,9 @@
               console.log("2번 도로 주의!");
             }
           }
-          else if((rule1+100)>=accdata1&&(rule2+100)>=accdata2)
+          else if((accdata1<(rule1+notirule)||accdata1>(rule1-notirule))&&(accdata2<(rule2+notirule)||accdata2>(rule2-notirule)))
           {
+	    alert_cnt=0;
             check_text.text("양호");
             alert_text.text("기준치 잡기")
             //space_text.remove();
@@ -484,6 +508,12 @@
             check_icon.addClass("fa fa-smile-o");
           }
           }
+	  if(alert_cnt==1){
+		audio.play();
+	  }
+	  else{
+	 	audio.pause();
+	  }
 
           if (config1.data.datasets.length > 0) {
 
