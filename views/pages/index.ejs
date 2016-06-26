@@ -10,7 +10,7 @@
 
     <script>
         var organization1 = new google.maps.LatLng(36.1290870,128.1874104);
-        var organization2 = new google.maps.LatLng(36.2720083,127.8250750);
+
 
         function HomeControl1(controlDiv1,map1) {
             controlDiv1.style.padding='5px';
@@ -36,34 +36,11 @@
             });
         }
 
-        function HomeControl2(controlDiv2,map2) {
-            controlDiv2.style.padding='5px';
-
-            var controlUI2= document.createElement('div');
-            controlUI2.style.backgroundColor='white';
-            controlUI2.style.border='1px';
-            controlUI2.style.cursor='pointer';
-            controlUI2.style.textAlign='center';
-            controlUI2.title =' set map to Home';
-            controlDiv2.appendChild(controlUI2);
-
-            var controlText2 = document.createElement('div');
-            controlText2.style.fontFamily='Arial.sans-serif';
-            controlText2.style.fontSize='12px';
-            controlText2.style.paddingLeft='4px';
-            controlText2.style.paddingRight='4px';
-            controlText2.innerHTML ='<b>한국 도로공사 영동지구<b>'
-            controlUI2.appendChild(controlText2);
-
-            google.maps.event.addDomListener(controlUI2,'click',function () {
-                map2.setCenter(organization2,36.2720083,127.8250750)
-            });
-        }
 
         function initialize() {
 
             var mapDiv1 = document.getElementById('googleMap');
-            var mapDiv2 = document.getElementById('googleMap2');
+
             var mapProp1={
                 center:organization1,
                 zoom:15,
@@ -74,54 +51,36 @@
 
                 mapTypeId:google.maps.MapTypeId.ROADMAP
             };
-            var mapProp2={
-                center:organization2,
-                zoom:15,
-                zoomControl:true,
-                zoomControlOptions: {
-                    style:google.maps.ZoomControlStyle.SMALL
-                },
-
-                mapTypeId:google.maps.MapTypeId.ROADMAP
-            };
 
             var map1 = new google.maps.Map(mapDiv1,mapProp1);
-            var map2 = new google.maps.Map(mapDiv2,mapProp2)
+
             //홈 컨트롤
             var HomeControlDiv1 = document.createElement('div');
-            var HomeControlDiv2 = document.createElement('div');
+
             var homeControl1 = new HomeControl1(HomeControlDiv1,map1);
-            var homeControl2 = new HomeControl2(HomeControlDiv2,map2);
+
             //homeControlDiv.index = 1;
             map1.controls[google.maps.ControlPosition.TOP_RIGHT].push(HomeControlDiv1);
-            map2.controls[google.maps.ControlPosition.TOP_RIGHT].push(HomeControlDiv2);
+
 
             //마커
             var marker1 = new google.maps.Marker({
                 position : organization1,
                 //animation:google.maps.Animation.BOUNCE
             });
-            var marker2 = new google.maps.Marker({
-                position : organization2,
-                //animation:google.maps.Animation.BOUNCE
-            });
 
             marker1.setMap(map1);
-            marker2.setMap(map2);
+
 
             var infowindow1 = new google.maps.InfoWindow({
                 content:"<b>한국 도로공사 본사<b>"
             });
-            var infowindow2 = new google.maps.InfoWindow({
-                content:"<b>한국 도로공사 영동지사<b>"
-            });
+
 
             infowindow1.open(map1,marker1);
-            infowindow2.open(map2,marker2);
 
 
         }
-
 
         google.maps.event.addDomListener(window, 'load', initialize);
     </script>

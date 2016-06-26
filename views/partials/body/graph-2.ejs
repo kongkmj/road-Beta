@@ -1,0 +1,216 @@
+<div id="page-wrapper">
+
+  <!-- Page Heading -->
+          <div class="row">
+              <div class="col-lg-12">
+                  <h1 class="page-header">
+                      도로 <small>사면 유실정보</small>
+                  </h1>
+                  <ol class="breadcrumb">
+                      <li class="active">
+                          <i class="fa fa-road"></i> 정보
+                      </li>
+                  </ol>
+              </div>
+          </div>
+<div style="width:85%;">
+    <canvas id="canvas"></canvas>
+</div>
+<br>
+<br>
+<div class="row">
+              <div class="col-lg-12">
+                  <div class="panel panel-default">
+                      <div class="panel-heading">
+                          특이사항
+                      </div>
+                      <!-- /.panel-heading -->
+                      <div class="panel-body">
+                          <div class="dataTable_wrapper">
+                              <table class="table table-striped table-bordered table-hover" id="dataTables-example">
+                                  <thead>
+                                    <tr>
+                                        <th style="width:8%">#</th>
+                                        <th style="width:20%">중계기</th>
+                                        <th style="width:15%">Beacon</th>
+                                        <th>수치</th>
+                                        <th>날짜</th>
+                                        <th>시간</th>
+                                        <th>등급</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+
+                              <% data.forEach(function(push2){%>
+                              <tr>
+                                  <td>1</td>
+                                  <td><%=push2.gnum%></a></td>
+                                  <td><%=push2.bnum%></td>
+                                  <td><%=push2.beacon%></td>
+                                  <td><%=push2.createdAt.toLocaleDateString()%></td>
+                                  <td><%=push2.createdAt.toLocaleTimeString()%></td>
+                                  <td><%=push2.status%></td>
+                              </tr>
+                              <% })%>
+
+                                  </tbody>
+                              </table>
+                          </div>
+                          <!-- /.table-responsive -->
+
+                      </div>
+                      <!-- /.panel-body -->
+                  </div>
+                  <!-- /.panel -->
+              </div>
+              <!-- /.col-lg-12 -->
+          </div>
+
+<script>
+
+    //var MONTHS = [];
+    var randomScalingFactor = function() {
+        return Math.round(Math.random() * 100 * (Math.random() > 0.5 ? -1 : 1));
+    };
+    var randomColorFactor = function() {
+        return Math.round(Math.random() * 255);
+    };
+    var randomColor = function(opacity) {
+        return 'rgba(' + randomColorFactor() + ',' + randomColorFactor() + ',' + randomColorFactor() + ',' + (opacity || '.3') + ')';
+    };
+    var config = {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [
+            {
+                label: "5번 Beacon",
+                data: [],
+                lineTension: 0,
+                fill: false,
+            }, ]
+        },
+        options: {
+            responsive: true,
+            legend: {
+                position: 'bottom',
+            },
+            hover: {
+                mode: 'label'
+            },
+            scales: {
+                xAxes: [{
+
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'data'
+                    }
+                }],
+                yAxes: [{
+                    ticks:{
+                      suggestedMax: 200,
+                      beginAtZero: true
+                    },
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Time'
+                    }
+                }]
+            },
+            title: {
+                display: true,
+
+            }
+        }
+    };
+
+    $.each(config.data.datasets, function(i, dataset) {
+        var background = randomColor(0.5);
+        dataset.borderColor = background;
+        dataset.backgroundColor = background;
+        dataset.pointBorderColor = background;
+        dataset.pointBackgroundColor = background;
+        dataset.pointBorderWidth = 1;
+    });
+
+    window.onload = function() {
+        var ctx = document.getElementById("canvas").getContext("2d");
+        window.myLine = new Chart(ctx, config);
+    };
+
+</script>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+var socket = io.connect("http://localhost:80");
+socket.on('chat message',function (data_1,data_2,data_3,data_4,data_5,discon) {
+  console.log("chat message: ",data_1,data_2,data_3,data_4,data_5);
+  var accdata1 = data_1/100;
+  var accdata2 = data_2/100;
+  var accdata3 = data_3/100;
+  var accdata4 = data_4/100;
+  var accdata5 = data_5/100;
+  var status= 1; //등급
+
+  //클라이언트 -> 서버
+  if(accdata1>3){
+    status =3;
+    console.log(accdata1,status);
+    socket.emit('log1',accdata1,status);
+  }
+  if(accdata2>3){
+    status =3;
+    console.log(accdata2,status);
+    socket.emit('log2',accdata2,status);
+  }
+  if(accdata3>3){
+    status =3;
+    console.log(accdata3,status);
+    socket.emit('log3',accdata3,status);
+  }
+  if(accdata4>3){
+    status =3;
+    console.log(accdata4,status);
+    socket.emit('log4',accdata4,status);
+  }
+  if(accdata5>3){
+    status =3;
+    console.log(accdata5,status);
+    socket.emit('log5',accdata5,status);
+  }
+
+
+  if (config.data.datasets.length > 0) {
+
+            var now = new Date();
+            var hour = now.getHours();
+            var min = now.getMinutes();
+            var second = now.getSeconds();
+            config.data.labels.push(hour+":"+min+":"+second);
+
+            if(config.data.labels.length==21){
+              $.each(config.data.datasets, function(i, dataset) {
+                  config.data.labels.shift(0,21);
+                  dataset.data.shift(0,20);
+                  dataset.data.push(data_2);
+              });
+            }
+            else{
+            $.each(config.data.datasets, function(i, dataset) {
+                dataset.data.push(data_2);
+            });
+          }
+            window.myLine.update();
+        }
+});
+
+
+
+</script>
+
+<!-- /#page-wrapper -->
+</div>

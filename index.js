@@ -10,6 +10,7 @@ var querystring = require('querystring');
 // TCP
 var net = require('net');
 var discon = 0;
+
 var server = net.createServer(function (socket) {
   console.log(socket.address().address+"connected");
   //client로 부터 오는 data 출력
@@ -17,26 +18,59 @@ var server = net.createServer(function (socket) {
     //문자열 추출
     //console.log(data);
     var a= ""+data;
-    var datanumber = a.indexOf(",");
+    var datanumber1 = a.indexOf(",");
     //console.log(datanumber);
-    var c = a.substring(0,datanumber);
-    var b = a.substring(datanumber+1);
-    //console.log(c);
-   // console.log(b);
+    var c = a.substring(0,datanumber1);// 1번째 data
+    var d = a.substring(datanumber1+1);
+    var datanumber2 = d.indexOf(",");
+    var d1 = d.substring(0,datanumber2);// 2번째 data
+    var e = d.substring(datanumber2+1);
+    var datanumber3 = e.indexOf(",");
+    var e1 = e.substring(0,datanumber3);// 3번째 data
+    var f = e.substring(datanumber3+1);
+    var datanumber4 = f.indexOf(",");
+    var f1 = f.substring(0,datanumber4);// 4번째 data
+    var g = f.substring(datanumber4+1);// 5번째 data
+
+/*
+    console.log(c);
+    console.log(d);
+    console.log(d1);
+    console.log(e);
+    console.log(e1);
+    console.log(f);
+    console.log(f1);
+    console.log(g);
+*/
+
     var data2 = c-0;
-    var data3 = b-0;
+    var data3 = d1-0;
+    var data4 = e1-0;
+    var data5 = f1-0;
+    var data6 = g-0;
 
 
-      data4= data2;
-      data5= data3;
- 	console.log("연결이 끊긴 횟수: "+discon);
-    console.log("Data1: "+data4+", Data2: "+data5);
+      data_1= data2;
+      data_2= data3;
+      data_3= data4;
+      data_4= data5;
+      data_5= data6;
+ 	//console.log("연결이 끊긴 횟수: "+discon);
+    console.log("Data1: "+data_1+", Data2: "+data_2+", Data3: "+data_3+", Data4: "+data_4+", Data5: "+data_5);
+
+
     //console.log(data3);
-    io.emit('chat message',data4,data5,discon);
+    io.emit('chat message',data_1,data_2,data_3,data_4,data_5,discon);
+
   });
+
+
+
+
 
   //client와 접속이 끊겻을때
   socket.on('close',function () {
+
     discon+=1;
    // console.log("연결이 끊긴 횟수: "+discon);
     console.log('client disconnected');
@@ -62,7 +96,84 @@ server.listen(11111,function () {
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-mongoose.connect("mongodb://172.31.4.15:27017");
+// 클라이언트로부터 받아온 정보
+
+io.on('connection',function (socket) {
+  socket.on('log1',function (accdata1,status) {
+    var log = new Push1({
+      bnum:1,
+      gnum:1,
+      status:status,
+      beacon:accdata1
+
+    });
+    console.log("1번 비콘 경고 받음");
+    console.log(accdata1,status);
+  log.save(function (err,log) {
+      console.log(log);
+  });
+  });
+  socket.on('log2',function (accdata2,status) {
+    var log = new Push2({
+      bnum:2,
+      gnum:1,
+      status:status,
+      beacon:accdata2
+
+    });
+    console.log("2번 비콘 경고 받음");
+    console.log(accdata2,status);
+    log.save(function (err,log) {
+        console.log(log);
+    });
+  });
+  socket.on('log3',function (accdata3,status) {
+    var log = new Push3({
+      bnum:3,
+      gnum:1,
+      status:status,
+      beacon:accdata3
+
+    });
+    console.log("3번 비콘 경고 받음");
+    console.log(accdata3,status);
+    log.save(function (err,log) {
+        console.log(log);
+    });
+  });
+  socket.on('log4',function (accdata4,status) {
+    var log = new Push4({
+      bnum:4,
+      gnum:1,
+      status:status,
+      beacon:accdata4
+
+    });
+    console.log("4번 비콘 경고 받음");
+    console.log(accdata4,status);
+    log.save(function (err,log) {
+        console.log(log);
+    });
+  });
+  socket.on('log5',function (accdata5,status) {
+    var log = new Push5({
+      bnum:5,
+      gnum:1,
+      status:status,
+      beacon:accdata5
+
+    });
+    console.log("5번 비콘 경고 받음");
+    console.log(accdata5,status);
+    log.save(function (err,log) {
+        console.log(log);
+    });
+  });
+
+});
+
+
+mongoose.connect("mongodb://test:test@ds023664.mlab.com:23664/roadtest");
 var db = mongoose.connection;
 db.once("open",function () {
   console.log("DB connected");
@@ -72,11 +183,48 @@ db.on("error",function (err) {
 });
 
 //model setting
-var dataSchema = mongoose.Schema({
-  data:{type:String},
+var dataSchema1 = mongoose.Schema({
+  gnum:{type:String},
+  bnum:{type:String},
+  beacon:{type:String},
+  status:{type:String},
   createdAt:{type:Date,default:Date.now},
 });
-var Push = mongoose.model('push',dataSchema);
+var dataSchema2 = mongoose.Schema({
+  gnum:{type:String},
+  bnum:{type:String},
+  beacon:{type:String},
+  status:{type:String},
+  createdAt:{type:Date,default:Date.now},
+});
+var dataSchema3 = mongoose.Schema({
+  gnum:{type:String},
+  bnum:{type:String},
+  beacon:{type:String},
+  status:{type:String},
+  createdAt:{type:Date,default:Date.now},
+});
+var dataSchema4 = mongoose.Schema({
+  gnum:{type:String},
+  bnum:{type:String},
+  beacon:{type:String},
+  status:{type:String},
+  createdAt:{type:Date,default:Date.now},
+});
+var dataSchema5 = mongoose.Schema({
+  gnum:{type:String},
+  bnum:{type:String},
+  beacon:{type:String},
+  status:{type:String},
+  createdAt:{type:Date,default:Date.now},
+});
+var Push1 = mongoose.model('push1',dataSchema1);
+var Push2 = mongoose.model('push2',dataSchema2);
+var Push3 = mongoose.model('push3',dataSchema3);
+var Push4 = mongoose.model('push4',dataSchema4);
+var Push5 = mongoose.model('push5',dataSchema5);
+
+
 
 //var pushdata = [];
 
@@ -97,11 +245,43 @@ app.get('/',function(req,res){
     res.sendFile(__dirname +'/index.html');
 });
 */
+
+
+
+
+
 app.get('/',function (req,res) {
   res.render('index');
 });
-app.get('/realtimechart',function (req,res) {
-  res.render('realtimechart');
+app.get('/realtimechart-1',function (req,res) {
+  Push1.find({}).sort('-createdAt').exec(function (err, push1) {
+        if (err) return res.json({success: false, message: err});
+        res.render("realtimechart-1", {data: push1});
+    });
+});
+app.get('/realtimechart-2',function (req,res) {
+  Push2.find({}).sort('-createdAt').exec(function (err, push2) {
+        if (err) return res.json({success: false, message: err});
+        res.render("realtimechart-2", {data: push2});
+    });
+});
+app.get('/realtimechart-3',function (req,res) {
+  Push3.find({}).sort('-createdAt').exec(function (err, push3) {
+        if (err) return res.json({success: false, message: err});
+        res.render("realtimechart-3", {data: push3});
+    });
+});
+app.get('/realtimechart-4',function (req,res) {
+  Push4.find({}).sort('-createdAt').exec(function (err, push4) {
+        if (err) return res.json({success: false, message: err});
+        res.render("realtimechart-4", {data: push4});
+    });
+});
+app.get('/realtimechart-5',function (req,res) {
+  Push5.find({}).sort('-createdAt').exec(function (err, push5) {
+        if (err) return res.json({success: false, message: err});
+        res.render("realtimechart-5", {data: push5});
+    });
 });
 app.get('/datatable',function (req,res) {
   res.render('datatable');

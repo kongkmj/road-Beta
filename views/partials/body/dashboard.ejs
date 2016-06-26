@@ -157,22 +157,10 @@
         <br>
 
         <div class="col-lg-7">
-          <label>Selects</label>
-          <select class="form-control">
-              <option>2 번도로</option>
-              <option>1 번도로</option>
-              <option>3 번도로</option>
-              <option>4 번도로</option>
-              <option>5 번도로</option>
-          </select>
-            <canvas id="canvas2" width="50%" height="25%";></canvas>
-
         </div>
         <br>
 
         <div class="col-lg-5">
-          <br>
-          <div id = "googleMap2" style="width:100%;height:320px;"></div>
       </div>
         <!--
         <button id="addDataset">Add Dataset</button>
@@ -240,77 +228,22 @@
                     }
                 }
             };
-            var config2 = {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [
-                    {
-                        label: "1번 구역",
-                        data: [],
-                        //length:data.length,
-                        lineTension: 0,
-                        fill: false,
-                    }, ]
-                },
-                options: {
-                    responsive: true,
-                    legend: {
-                        position: 'bottom',
-                    },
-                    hover: {
-                        mode: 'label'
-                    },
-                    scales: {
-                        xAxes: [{
-
-                            display: true,
-                            scaleLabel: {
-                                display: true,
-                                labelString: 'data'
-                            }
-                        }],
-                        yAxes: [{
-                            ticks:{
-                              suggestedMax: 20,
-                              beginAtZero: true
-                            },
-                            display: true,
-                            scaleLabel: {
-                                display: true,
-                                labelString: 'Time'
-                            }
-                        }]
-                    },
-                    title: {
-                        display: true,
-                        text: '2번 도로'
-                    }
-                }
-            };
 
             $.each(config1.data.datasets, function(i, dataset) {
-                var background ="#FF4848"; 
+                var background ="#FF4848"; //그래프 색상 변경
                 dataset.borderColor = background;
                 dataset.backgroundColor = background;
                 dataset.pointBorderColor = background;
                 dataset.pointBackgroundColor = background;
                 dataset.pointBorderWidth = 1;
             });
-            $.each(config2.data.datasets, function(i, dataset) {
-                var background = "#486AAE";
-                dataset.borderColor = background;
-                dataset.backgroundColor = background;
-                dataset.pointBorderColor = background;
-                dataset.pointBackgroundColor = background;
-                dataset.pointBorderWidth = 1;
-            });
+
 
             window.onload = function() {
                 var ctx = document.getElementById("canvas").getContext("2d");
-                var ctx2 = document.getElementById("canvas2").getContext("2d");
+
                 window.myLine1 = new Chart(ctx, config1);
-                window.myLine2 = new Chart(ctx2, config2);
+
                 //console.log(config.data.datasets.data);
             };
       </script>
@@ -318,7 +251,7 @@
 
         <script src="/socket.io/socket.io.js"></script>
         <script>
-        var socket = io.connect("http://52.78.24.215:80");
+        var socket = io.connect("http://localhost:80");
         var check_icon = $("#test3 i");
         var check_color = $("#test5");
         var check_text = $("#test6");
@@ -326,27 +259,37 @@
         var alert_text = $("#test7");
         var space_text = $("#test8");
         var startbnt;
-        var rule1,rule2;
-        var eval1=0 ,eval2=0 ;
+        var rule1,rule2,rule3,rule4,rule5;
+        var eval1=0 ,eval2=0,eval3=0,eval4=0,eval5=0;
         var count=0;
 	var audio = new Audio();
 	audio.src = './alert.mp3';
-	var alert_cnt=0;	
+	var alert_cnt=0;
 
-        socket.on('chat message',function (data4,data5,discon) {
-	  
+        socket.on('chat message',function (data_1,data_2,data_3,data_4,data_5,discon) {
+
 	  console.log("끊긴 횟수: ",discon);
-          console.log("chat message: ",data4,data5);
-          var accdata1 = data4/100;
-          var accdata2 = data5/100;
-          var warnrule = 5;
-	  var notirule = 2;
+          console.log("chat message: ",data_1,data_2,data_3,data_4,data_5);
+          var accdata1 = data_1/100;
+          var accdata2 = data_2/100;
+          var accdata3 = data_3/100;
+          var accdata4 = data_4/100;
+          var accdata5 = data_5/100;
+
+          var warnrule = 5;  //경고
+	        var notirule = 2;  //주의
 
 	 	console.log('알람: ',+alert_cnt);
-          
+
           check_click.click(function () {
             eval1=0;
             eval2=0;
+
+            //추가
+            eval3=0;
+            eval4=0;
+            eval5=0;
+
             count=0;
             startbnt=1;
 
@@ -375,7 +318,10 @@
 
               rule1=eval1/(10-1);
               rule2=eval2/(10-1);
-              console.log("rule1:"+rule1*100+" rule2:"+rule2*100);
+              rule3=eval3/(10-1);
+              rule4=eval4/(10-1);
+              rule5=eval5/(10-1);
+              console.log("rule1:"+rule1*100+" rule2:"+rule2*100+" rule3:"+rule3*100+" rule4:"+rule4*100+" rule5:"+rule5*100);
               startbnt=0;
               count=0;
             }
@@ -553,44 +499,7 @@
 
               window.myLine1.update();
           }
-          if (config2.data.datasets.length > 0) {
 
-              var now = new Date();
-              var hour = now.getHours();
-              var min = now.getMinutes();
-              var second = now.getSeconds();
-              config2.data.labels.push(hour+":"+min+":"+second);
-
-              if(config2.data.labels.length==21){
-                $.each(config2.data.datasets, function(i, dataset) {
-                    config2.data.labels.shift(0,21);
-                    dataset.data.shift(0,20);
-                    if(startbnt==1){
-                      count+=1;
-                      eval2+=accdata2;
-                      dataset.data.push(accdata2);
-                    }
-                    else{
-                    dataset.data.push(accdata2);
-                    }
-                });
-              }
-              else{
-
-              $.each(config2.data.datasets, function(i, dataset) {
-                if(startbnt==1){
-                  count+=1;
-                  eval2+=accdata2;
-                  dataset.data.push(accdata2);
-                }
-                else{
-                  dataset.data.push(accdata2);
-                }
-              });
-            }
-
-              window.myLine2.update();
-          }
 });
 
 
