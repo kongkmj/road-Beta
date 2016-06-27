@@ -6,6 +6,13 @@
                   <h1 class="page-header">
                       도로 <small>사면 유실정보</small>
                   </h1>
+                  <form id="ruleform" name="ruleform" method="POST" action="/realtimechart-2">
+                    기준 입력
+                    <input type="text" id ="ruleid" name="ruleid" value=""/>
+                    변동값
+                    <input type="text" id ="rangeid" name="rangeid" value=""/>
+                    <input type="button" id="rulebtn" value="입력"/>
+                  </form>
                   <ol class="breadcrumb">
                       <li class="active">
                           <i class="fa fa-road"></i> 정보
@@ -146,9 +153,23 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
+var eval2;
+  $(document).ready(function () {
+    $("#rulebtn").click(function () {
+        if($("#ruleid").val()==""){
+          alert("기준을 입력해주세요.");
+        }
+        else if($("#rangeid").val()==""){
+          alert("변동값을 입력해주세요.")
+        }
+        else{
+          $("#ruleform").submit();
+        }
+    })
+  })
 var socket = io.connect("http://localhost:80");
-socket.on('chat message',function (data_1,data_2,data_3,data_4,data_5,discon) {
-  console.log("chat message: ",data_1,data_2,data_3,data_4,data_5);
+socket.on('chat message',function (data_1,data_2,data_3,data_4,data_5,discon,eval1,eval2,eval3,eval4,eval5,range1,range2,range3,range4,range5) {
+  console.log("chat message: ",data_1,data_2,data_3,data_4,data_5,discon,eval1,eval2,eval3,eval4,eval5,range1,range2,range3,range4,range5);
   var accdata1 = data_1/100;
   var accdata2 = data_2/100;
   var accdata3 = data_3/100;
@@ -157,31 +178,16 @@ socket.on('chat message',function (data_1,data_2,data_3,data_4,data_5,discon) {
   var status= 1; //등급
 
   //클라이언트 -> 서버
-  if(accdata1>3){
-    status =3;
-    console.log(accdata1,status);
-    socket.emit('log1',accdata1,status);
+
+  if(range2!=null){
+    if((accdata2>(eval2+range2))||(accdata2<(eval2-range2))){
+      console.log("2번");
+      status =3;
+      console.log(accdata2,status);
+      socket.emit('log2',accdata2,status);
+    }
   }
-  if(accdata2>3){
-    status =3;
-    console.log(accdata2,status);
-    socket.emit('log2',accdata2,status);
-  }
-  if(accdata3>3){
-    status =3;
-    console.log(accdata3,status);
-    socket.emit('log3',accdata3,status);
-  }
-  if(accdata4>3){
-    status =3;
-    console.log(accdata4,status);
-    socket.emit('log4',accdata4,status);
-  }
-  if(accdata5>3){
-    status =3;
-    console.log(accdata5,status);
-    socket.emit('log5',accdata5,status);
-  }
+  
 
 
   if (config.data.datasets.length > 0) {

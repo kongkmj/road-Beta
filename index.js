@@ -6,6 +6,10 @@ var bodyParser = require('body-parser');
 var mongoose  = require('mongoose');
 var querystring = require('querystring');
 
+//클라이언트 입력값(기준값,변동값)
+var eval1,eval2,eval3,eval4,eval5;
+var range1,range2,range3,range4,range5;
+
 
 // TCP
 var net = require('net');
@@ -60,7 +64,7 @@ var server = net.createServer(function (socket) {
 
 
     //console.log(data3);
-    io.emit('chat message',data_1,data_2,data_3,data_4,data_5,discon);
+    io.emit('chat message',data_1,data_2,data_3,data_4,data_5,discon,eval1,eval2,eval3,eval4,eval5,range1,range2,range3,range4,range5);
 
   });
 
@@ -98,9 +102,12 @@ var io = require('socket.io')(http);
 
 // 클라이언트로부터 받아온 정보
 
+
+
+
 io.on('connection',function (socket) {
   socket.on('log1',function (accdata1,status) {
-    var log = new Push1({
+    var log1 = new Push1({
       bnum:1,
       gnum:1,
       status:status,
@@ -109,12 +116,12 @@ io.on('connection',function (socket) {
     });
     console.log("1번 비콘 경고 받음");
     console.log(accdata1,status);
-  log.save(function (err,log) {
-      console.log(log);
+  log1.save(function (err,log1) {
+      console.log(log1);
   });
   });
   socket.on('log2',function (accdata2,status) {
-    var log = new Push2({
+    var log2 = new Push2({
       bnum:2,
       gnum:1,
       status:status,
@@ -123,12 +130,12 @@ io.on('connection',function (socket) {
     });
     console.log("2번 비콘 경고 받음");
     console.log(accdata2,status);
-    log.save(function (err,log) {
-        console.log(log);
+    log2.save(function (err,log2) {
+        console.log(log2);
     });
   });
   socket.on('log3',function (accdata3,status) {
-    var log = new Push3({
+    var log3 = new Push3({
       bnum:3,
       gnum:1,
       status:status,
@@ -137,12 +144,12 @@ io.on('connection',function (socket) {
     });
     console.log("3번 비콘 경고 받음");
     console.log(accdata3,status);
-    log.save(function (err,log) {
-        console.log(log);
+    log3.save(function (err,log3) {
+        console.log(log3);
     });
   });
   socket.on('log4',function (accdata4,status) {
-    var log = new Push4({
+    var log4 = new Push4({
       bnum:4,
       gnum:1,
       status:status,
@@ -151,12 +158,12 @@ io.on('connection',function (socket) {
     });
     console.log("4번 비콘 경고 받음");
     console.log(accdata4,status);
-    log.save(function (err,log) {
-        console.log(log);
+    log4.save(function (err,log4) {
+        console.log(log4);
     });
   });
   socket.on('log5',function (accdata5,status) {
-    var log = new Push5({
+    var log5 = new Push5({
       bnum:5,
       gnum:1,
       status:status,
@@ -165,8 +172,8 @@ io.on('connection',function (socket) {
     });
     console.log("5번 비콘 경고 받음");
     console.log(accdata5,status);
-    log.save(function (err,log) {
-        console.log(log);
+    log5.save(function (err,log5) {
+        console.log(log5);
     });
   });
 
@@ -282,6 +289,40 @@ app.get('/realtimechart-5',function (req,res) {
         if (err) return res.json({success: false, message: err});
         res.render("realtimechart-5", {data: push5});
     });
+});
+app.post('/realtimechart-1',function (req,res) {
+    eval1=req.body.ruleid;
+    range1=req.body.rangeid;
+    console.log("1번기준: "+eval1);
+    console.log("1번범위: "+range1);
+});
+app.post('/realtimechart-2',function (req,res) {
+    eval2=req.body.ruleid;
+    range2=req.body.rangeid;
+    console.log("2번기준: "+eval2);
+    console.log("2번범위: "+range2);
+
+});
+app.post('/realtimechart-3',function (req,res) {
+    eval3=req.body.ruleid;
+    range3=req.body.rangeid;
+    console.log("3번기준: "+eval3);
+    console.log("3번범위: "+range3);
+
+});
+app.post('/realtimechart-4',function (req,res) {
+    eval4=req.body.ruleid;
+    range4=req.body.rangeid;
+    console.log("4번기준: "+eval4);
+    console.log("4번범위: "+range4);
+
+});
+app.post('/realtimechart-5',function (req,res) {
+    eval5=req.body.ruleid;
+    range5=req.body.rangeid;
+    console.log("5번기준: "+eval5);
+    console.log("5번범위: "+range5);
+
 });
 app.get('/datatable',function (req,res) {
   res.render('datatable');
